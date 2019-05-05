@@ -9,12 +9,17 @@ public class Exponentation {
     }
 
     public int getExponentation(int exp){
-        if (exp == 1) {
-            return source;
+        if (exp<0) {
+            System.out.println("Введите положительный аргумент степени");
+            return -1;
         }
         else {
-            source = source*getExponentation(--exp);
+            if (exp == 1) {
+                return source;
+            } else {
+                source = source * getExponentation(--exp);
+            }
+            return source;
         }
-        return source;
     }
 }
