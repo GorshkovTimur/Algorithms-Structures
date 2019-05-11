@@ -5,6 +5,8 @@ import java.util.Objects;
 public class Node<T extends Comparable<? super T>> {
 
     private final T value;
+    private Node<T> leftChild;
+    private Node<T> rightChild;
 
     @Override
     public String toString() {
@@ -46,8 +48,7 @@ public class Node<T extends Comparable<? super T>> {
         this.rightChild = rightChild;
     }
 
-    private Node<T> leftChild;
-    private Node<T> rightChild;
+
 
     public Node(T value) {
         this.value = value;

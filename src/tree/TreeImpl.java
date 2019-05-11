@@ -1,30 +1,38 @@
 package tree;
 
-public class TreeImpl<E extends Comparable <? super E>> implements Tree<E> {
+import java.util.Stack;
 
+public class TreeImpl<E extends Comparable<? super E>> implements Tree<E>{
+
+    private final int maxLevel;
     private Node<E> root;
 
+    public Node<E> getRoot() {
+        return root;
+    }
 
 
+    public TreeImpl(int maxLevel) {
+        this.maxLevel = maxLevel;
+    }
 
     @Override
     public boolean add(E value) {
+            if (root == null) {
+                root = new Node<>(value);
+                return true;
+            }
 
-        if (root == null){
-            root = new Node<>(value);
-            return true;
-        }
+            Node<E> current = root;
+            NodeAndPrevious nodeAndPrevious = doFind(value);
+            Node<E> previous = nodeAndPrevious.previous;
 
-        Node<E> current = root;
-        NodeAndPrevious nodeAndPrevious = doFind(value);
-        Node<E> previous = nodeAndPrevious.previous;
+            if (previous.shouldBeLeft(value)) {
+                previous.setLeftChild(new Node<>(value));
 
-        if (previous.shouldBeLeft(value)){
-            previous.setLeftChild(new Node<>(value));
-        }
-        else {
-            previous.setRightChild(new Node<>(value));
-        }
+            } else {
+                previous.setRightChild(new Node<>(value));
+            }
 
         return true;
     }
@@ -116,12 +124,54 @@ public class TreeImpl<E extends Comparable <? super E>> implements Tree<E> {
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return root == null;
     }
 
     @Override
     public void display() {
+        Stack<Node> globalStack = new Stack<>();
+        globalStack.push(root);
+        int nBlanks = 64;
 
+        boolean isRowEmpty = false;
+        System.out.println("................................................................");
+
+        while (!isRowEmpty) {
+            Stack<Node> localStack = new Stack<>();
+
+            isRowEmpty = true;
+            for (int i = 0; i < nBlanks; i++) {
+                System.out.print(" ");
+            }
+
+            while (!globalStack.isEmpty()) {
+                Node tempNode = globalStack.pop();
+                if (tempNode != null) {
+                    System.out.print(tempNode.getValue());
+                    localStack.push(tempNode.getLeftChild());
+                    localStack.push(tempNode.getRightChild());
+                    if (tempNode.getLeftChild() != null || tempNode.getRightChild() != null) {
+                        isRowEmpty = false;
+                    }
+                } else {
+                    System.out.print("--");
+                    localStack.push(null);
+                    localStack.push(null);
+                }
+                for (int j = 0; j < nBlanks * 2 - 2; j++) {
+                    System.out.print(" ");
+                }
+            }
+
+            System.out.println();
+
+            while (!localStack.isEmpty()) {
+                globalStack.push(localStack.pop());
+            }
+
+            nBlanks /= 2;
+        }
+        System.out.println("................................................................");
 
     }
 
@@ -193,6 +243,7 @@ public class TreeImpl<E extends Comparable <? super E>> implements Tree<E> {
             else {
                 current = current.getRightChild();
             }
+
         }
         return new NodeAndPrevious(current, previous);
     }
@@ -206,6 +257,36 @@ public class TreeImpl<E extends Comparable <? super E>> implements Tree<E> {
             this.current = current;
             this.previous = previous;
         }
+    }
+
+    public  boolean isBalanced(E value) {
+        Node<E> node = getNode(value);
+        return (node == null) ||
+                isBalanced(node.getLeftChild()) &&
+                        isBalanced(node.getRightChild()) &&
+                        Math.abs(height(node.getLeftChild()) - height(node.getRightChild())) <= 1;
+    }
+
+
+    private boolean isBalanced(Node node) {
+        return (node == null) ||
+                isBalanced(node.getLeftChild()) &&
+                        isBalanced(node.getRightChild()) &&
+                        Math.abs(height(node.getLeftChild()) - height(node.getRightChild())) <= 1;
+    }
+
+    public int calcHeight(E value) {
+        Node<E> node = getNode(value);
+        return node == null ? 0 : 1 + Math.max(height(node.getLeftChild()), height(node.getRightChild()));
+    }
+
+    private Node<E> getNode(E value) {
+        NodeAndPrevious nodeAndPrevious = doFind(value);
+        return (Node<E>) nodeAndPrevious.current;
+    }
+
+    private static int height(Node node) {
+        return node == null ? 0 : 1 + Math.max(height(node.getLeftChild()), height(node.getRightChild()));
     }
 
 }
