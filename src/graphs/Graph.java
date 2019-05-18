@@ -1,7 +1,5 @@
 package graphs;
 
-import LinkedList.LinkList;
-
 import java.util.*;
 
 public class Graph {
@@ -149,7 +147,51 @@ public class Graph {
             resetVertexState();
 
         }
-
-
     }
+
+    public Stack<String> getShortPath(String startLabel, String finishLabel){
+        int start = indexOf(startLabel);
+        int finish = indexOf(finishLabel);
+
+        if (start == -1 || finish == -1){
+            throw new IllegalArgumentException("Check your start and finish");
+        }
+
+        Vertex vertex = vertixes.get(start);
+
+        Queue<Vertex> queue = new ArrayDeque<>();
+        visitVertex(queue, vertex);
+
+        while (!queue.isEmpty()){
+            vertex = getNearUnvisitedVertex(queue.peek());
+            if (vertex == null) {
+                queue.remove();
+            }
+            else {
+                visitVertex(queue,vertex);
+                vertex.setPreviousVertex(queue.peek());
+
+                if (vertex.getLabel().equals(finishLabel)) {
+                    return buildPath(vertex);
+                }
+
+            }
+        }
+        resetVertexState();
+        return null;
+    }
+
+
+    private Stack<String> buildPath(Vertex vertex) {
+        Stack<String> stack = new Stack<>();
+        Vertex current = vertex;
+        while( current!= null){
+            stack.push(current.getLabel());
+            current = current.getPreviousVertex();
+        }
+        return stack;
+    }
+
 }
+
+
