@@ -1,7 +1,8 @@
 package graphs;
 
-import java.util.ArrayList;
-import java.util.List;
+import LinkedList.LinkList;
+
+import java.util.*;
 
 public class Graph {
 
@@ -10,21 +11,21 @@ public class Graph {
 
     private int size;
 
-    public Graph (int maxVertexCount){
+    public Graph(int maxVertexCount) {
         this.adjMat = new boolean[maxVertexCount][maxVertexCount];
     }
 
-    public void addVertex(String label){
+    public void addVertex(String label) {
         Vertex vertex = new Vertex(label);
         vertixes.add(vertex);
         size++;
     }
 
-    public void addEdge(String start, String finish){
+    public void addEdge(String start, String finish) {
         int startIndex = indexOf(start);
         int finishIndex = indexOf(finish);
 
-        if (startIndex==-1 || finishIndex == -1){
+        if (startIndex == -1 || finishIndex == -1) {
             throw new IllegalArgumentException("Invalid label in Vertex");
         }
 
@@ -34,44 +35,121 @@ public class Graph {
     }
 
     private int indexOf(String label) {
-        for (int i = 0; i<size; i++){
-            if (vertixes.get(i).getLabel().equals(label)){
+        for (int i = 0; i < size; i++) {
+            if (vertixes.get(i).getLabel().equals(label)) {
                 return i;
             }
         }
         return -1;
     }
 
-    public void addEdges (String start, String second, String... others){
+    public void addEdges(String start, String second, String... others) {
         int startIndex = indexOf(start);
-        addEdge(start,second);
+        addEdge(start, second);
 
-        for (String other:others){
-            if (indexOf(other)==-1){
+        for (String other : others) {
+            if (indexOf(other) == -1) {
                 throw new IllegalArgumentException("Invalid label in Vertex");
             }
         }
         for (String other : others) {
-            addEdge(start,other);
+            addEdge(start, other);
         }
     }
 
-    public int getSize(){
+    public int getSize() {
         return size;
     }
 
-    public void display(){
-        for(int i=0; i<size; i++){
+    public void display() {
+        for (int i = 0; i < size; i++) {
             System.out.print(vertixes.get(i));
-            for (int j=0; j<size; j++){
-                if (adjMat[i][j]){
-                    System.out.print(" -> "+vertixes.get(j));
+            for (int j = 0; j < size; j++) {
+                if (adjMat[i][j]) {
+                    System.out.print(" -> " + vertixes.get(j));
                 }
             }
             System.out.println();
         }
     }
 
+    public void dfs(String startLabel) {
+        if (indexOf(startLabel) == -1) {
+            throw new IllegalArgumentException("Invalid start label");
+        }
+
+        Stack<Vertex> stack = new Stack<>();
+        Vertex vertex = vertixes.get(indexOf(startLabel));
+        visitVertex(stack, vertex);
+
+        while (!stack.isEmpty()) {
+            getNearUnvisitedVertex(stack.peek());
+            if (vertex != null) {
+                visitVertex(stack, vertex);
+            } else {
+                stack.pop();
+            }
+        }
+        resetVertexState();
+    }
+
+    private void resetVertexState() {
+        for (int i = 0; i < size; i++) {
+            vertixes.get(i).setWasVisited(false);
+        }
+    }
+
+    private Vertex getNearUnvisitedVertex(Vertex peek) {
+        int peekIndex = vertixes.indexOf(peek);
+        for (int i = 0; i < size; i++) {
+            if (adjMat[peekIndex][i] && !vertixes.get(i).isVisited()) {
+                return vertixes.get(i);
+            }
 
 
+        }
+
+        return null;
+    }
+
+    private void visitVertex(Stack<Vertex> queue, Vertex vertex) {
+        displayVertex(vertex);
+        vertex.setWasVisited(true);
+        queue.push(vertex);
+
+    }
+
+    private void visitVertex(Queue<Vertex> stack, Vertex vertex) {
+        displayVertex(vertex);
+        vertex.setWasVisited(true);
+        stack.add(vertex);
+
+    }
+
+    private void displayVertex(Vertex vertex) {
+        System.out.println(vertex);
+    }
+
+    public void bfs(String startLabel) {
+        if (indexOf(startLabel) == -1) {
+            throw new IllegalArgumentException("Invalid start label");
+        }
+
+        Vertex vertex = vertixes.get(indexOf(startLabel));
+
+        Queue<Vertex> queue = new LinkedList<>();
+        visitVertex(queue, vertex);
+        while (!queue.isEmpty()) {
+            getNearUnvisitedVertex(queue.peek());
+            if (vertex != null) {
+                visitVertex(queue, vertex);
+            } else {
+                queue.remove();
+            }
+            resetVertexState();
+
+        }
+
+
+    }
 }

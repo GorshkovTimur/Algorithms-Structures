@@ -5,6 +5,7 @@ import java.util.Objects;
 public class Vertex {
 
     private final String label;
+    private boolean visited;
 
     public String getLabel() {
         return label;
@@ -33,4 +34,14 @@ public class Vertex {
                 "label='" + label + '\'' +
                 '}';
     }
+
+    public void setWasVisited(boolean wasVisited) {
+        this.visited = wasVisited;
+    }
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+
 }
